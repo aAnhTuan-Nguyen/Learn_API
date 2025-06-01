@@ -1,0 +1,38 @@
+﻿# Thư mục build và output
+bin/
+obj/
+
+# Thư mục tạm của Visual Studio
+.vs/
+
+# File cấu hình người dùng
+*.user
+*.suo
+
+# File log và tạm
+*.log
+*.tmp
+*.cache
+
+# File debug và test
+TestResults/
+*.pdb
+
+# Cấu hình môi trường chạy ứng dụng
+appsettings.Development.json
+appsettings.Local.json
+appsettings.Secret.json
+
+# Thư mục của NuGet
+packages/
+*.nupkg
+project.assets.json
+
+# Docker và Kubernetes (nếu dùng)
+docker-compose.override.yml
+
+# Entity Framework
+Migrations/
+
+# Các file cấu hình khác
+appsettings.json
