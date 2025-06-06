@@ -24,5 +24,17 @@ namespace TodoWeb.Application.Helpers
             }
             return s.ToString();
         }
+
+        public static string HashSha256(string input)
+        {
+            using (var sha256 = System.Security.Cryptography.SHA256.Create())
+            {
+                var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
+                return Convert.ToBase64String(bytes);
+            }
+            //byte[] bytes = System.Security.Cryptography.SHA256.HashData(Encoding.UTF8.GetBytes(input));
+            //string hash =  Convert.ToBase64String(bytes);
+            //return hash;
+        }
     }
 }

@@ -60,7 +60,6 @@ builder.Services.AddSwaggerGen(option =>
 });
 // add dependency
 builder.Services.AddServices();
-
 builder.Services.AddMemoryCache();
 
 // session can cai nay
@@ -150,6 +149,9 @@ if (app.Environment.IsDevelopment())
 app.UseSession();
 
 app.UseHttpsRedirection();
+
+//ban middleware
+app.UseMiddleware<BanTokenMiddleware>();
 
 app.UseAuthentication();   // authentication truowsc khi authorization
 

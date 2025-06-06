@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TodoWeb.Application.Dtos;
 using TodoWeb.Application.Dtos.UserDTO;
 using TodoWeb.Application.Services;
+using TodoWeb.Application.Services.MiddlwareServices;
 using TodoWeb.Infrastructures;
 
 namespace TodoWeb.Controllers
@@ -16,13 +17,12 @@ namespace TodoWeb.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserServices _userServices;
-        //private readonly IApplicationDbContext _dbContext;
         private readonly IGoogleCredentialService _googleCredentialService;
+        private readonly ITokenBlacklistService _tokenBlacklistService;
         public UserController(IUserServices userServices, IGoogleCredentialService googleCredentialService)
         {
             _userServices = userServices;
             _googleCredentialService = googleCredentialService;
-            //_dbContext = dbContext;
         }
 
         [HttpPost("Register")]
@@ -78,11 +78,63 @@ namespace TodoWeb.Controllers
                 return BadRequest("Password or Email is in correct");
             }
 
-            var token = _userServices.GenerateJwt(user);
+            // delete old refresh token
+            _userServices.DeleteOldRefreshTokens(user.Id);
+            // Tạo JWT token cho người dùng
 
-            return Ok(token);
+            var accessToken = _userServices.GenerateJwt(user);
+            var refreshToken = _userServices.GenerateRefreshToken(user.Id);
+            // set refresh token to cookie or session
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true, // Chỉ gửi cookie qua HTTPS
+                Expires = DateTimeOffset.UtcNow.AddDays(7) // Thời gian hết hạn của refresh token
+            };
+            HttpContext.Response.Cookies.Append("RefreshToken", refreshToken, cookieOptions);
+
+            return Ok(accessToken);
         }
 
+        [HttpPost("refresh-token")]
+        public IActionResult RefreshToken()
+        {
+            var isExist = HttpContext.Request.Cookies.TryGetValue("RefreshToken", out var refreshToken);
+            if (!isExist)
+            {
+                return BadRequest("Refresh token not found");
+            }
+            var user = _userServices.GetUserByRefreshToken(refreshToken!);
+            if (user == null)
+            {
+                return BadRequest("Refresh token is invalid or has been revoked.");
+            }
+            // delete old refresh token
+            _userServices.DeleteOldRefreshTokens(user.Id);
+
+            // Tạo refresh token mới
+            var newRefreshToken = _userServices.GenerateRefreshToken(user.Id);
+            if (newRefreshToken == null)
+            {
+                return BadRequest("Failed to generate new refresh token.");
+            }
+            // Lưu refresh token mới vào cơ sở dữ liệu (nếu cần thiết)
+            
+
+            // Cập nhật refresh token mới vào cookie
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true, // Chỉ gửi cookie qua HTTPS
+                Expires = DateTimeOffset.UtcNow.AddDays(7) // Thời gian hết hạn của refresh token
+            };
+            HttpContext.Response.Cookies.Append("RefreshToken", newRefreshToken, cookieOptions);
+
+            // Tạo access token mới
+            var newAccessToken = _userServices.GenerateJwt(user);
+
+            return Ok(newAccessToken);
+        }
 
         [HttpPost("Logout")]
         public IActionResult Logout()
@@ -106,17 +158,63 @@ namespace TodoWeb.Controllers
         [HttpPost("Login-Google")]
         public async Task<IActionResult> LoginGoogle(GoogleLoginModel model)
         {
-            // Todo: get from appsettings
-            var clientId = "137320849289-d8q97maftuq347tslj5276bjl1lc3jp5.apps.googleusercontent.com"; // Replace with your Google Client ID
+            var clientId = "137320849289-d8q97maftuq347tslj5276bjl1lc3jp5.apps.googleusercontent.com"; // Lấy từ cấu hình ứng dụng
             var payload = await _googleCredentialService.VerifyCredential(clientId, model.Credential);
 
-            // Register user if not exists
-            
-            // Generate JWT token for the user
+            if (payload == null)
+            {
+                return BadRequest("Invalid Google credential");
+            }
 
-            //var jwt = _userServices.GenerateJwt(user)
+            var user = _userServices.GetUserByEmail(payload.Email);
+            if (user == null)
+            {
+                var newUser = new UserCreateModel
+                {
+                    EmailAddress = payload.Email,
+                    FullName = payload.Name,
+                    Role = Role.Stud, // Vai trò mặc định
+                };
 
-            return Ok(payload);
+                var result = _userServices.Register(newUser);
+                if (result is BadRequestObjectResult badRequest)
+                {
+                    return BadRequest(badRequest.Value);
+                }
+
+                user = _userServices.GetUserByEmail(newUser.EmailAddress);
+            }
+
+            // Tạo JWT token cho người dùng
+            var token = _userServices.GenerateJwt(user);
+            return Ok(new { Token = token, User = user });
         }
+
+        // Cache build in .Net, Time to live
+        // Set user to InActive
+        // Delete Refresh Token
+        // User still keep access token, assume expire time is 15 minutes
+
+        // BAN user's access token
+        // Create a authorize filter, cache contains black list access token
+        // Filter check if user's access token exist in the cache
+        // Yes => return Unauthorize
+        // No => continue processing
+        [HttpPost("Logout-jwt")]
+        public IActionResult LogoutJwt()
+        {
+            // Xoá refresh token khỏi cookie
+            HttpContext.Response.Cookies.Delete("RefreshToken");
+            return Ok("Logout successfully");
+        }
+
+        [HttpPost("Revoke")]
+        public IActionResult BanUserToken([FromBody] string accessToken)
+        {
+
+            _tokenBlacklistService.BanToken(accessToken);
+            return Ok("Token has been banned.");
+        }
+
     }
 }

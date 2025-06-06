@@ -32,7 +32,10 @@ project.assets.json
 docker-compose.override.yml
 
 # Entity Framework
+# Nếu bạn sử dụng Entity Framework, có thể bỏ qua các thư mục migration
+# Bởi vì các migrations có thể được tạo ra từ mã nguồn và không cần thiết phải commit
 Migrations/
 
 # Các file cấu hình khác
 appsettings.json
+

@@ -1,6 +1,7 @@
 ﻿using TodoWeb.Application.Middleware;
 using TodoWeb.Application.Services.CacheServices;
 using TodoWeb.Application.Services;
+using TodoWeb.Application.Services.MiddlwareServices;
 
 namespace TodoWeb.Infrastructures.Extensions
 {
@@ -22,6 +23,9 @@ namespace TodoWeb.Infrastructures.Extensions
             
             // add singleton
             serviceCollection.AddSingleton<IGoogleCredentialService, GoogleCredentialService>();
+
+            // Có một lỗi h mới biết đã làm middlware thì phải sử dụng AddSingleton
+            serviceCollection.AddSingleton<ITokenBlacklistService, TokenBlacklistService>();
         }
     }
 }

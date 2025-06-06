@@ -19,9 +19,14 @@ namespace TodoWeb.Application.Services
         public IActionResult Register(UserCreateModel user);
         public User? Login(UserLoginModel user);
 
-        public IActionResult RegisterByEmail(GoogleJsonWebSignature.Payload payload);
+        public User GetUserByEmail(string email);
 
         string GenerateJwt(User user);
+
+        string GenerateRefreshToken(int userId);
+
+        User GetUserByRefreshToken(string refreshToken);
+        void DeleteOldRefreshTokens(int userId);
     }
 
     public class UserServices : IUserServices
@@ -109,35 +114,56 @@ namespace TodoWeb.Application.Services
             return new OkObjectResult("User created successfully");
         }
 
-        public IActionResult RegisterByEmail(GoogleJsonWebSignature.Payload payload)
+        public User GetUserByEmail(string email)
         {
-            var user = _dbContext.Users
-                .FirstOrDefault(x => x.EmailAddress == payload.Email);
-            if (user != null)
-            {
-                return new BadRequestObjectResult("Email is already exist");
-            }
+            return _dbContext.Users.FirstOrDefault(u => u.EmailAddress == email);
+        }
 
-            var userCreateModel = new UserCreateModel
-            {
-                EmailAddress = payload.Email,
-                Password = payload.Subject, // Use subject or another field as password
-                Role = Dtos.UserDTO.Role.Stud,
-            };
+        //cái này đơn giản là một string thôi
+        public string GenerateRefreshToken(int userId)
+        {
+            string refreshToken = HashHelper.GenerateRandomString(64);
 
-            var salting = HashHelper.GenerateRandomString(100);
-            var password = HashHelper.HashBcrypt(userCreateModel.Password + salting);
-            var newUser = new User
+            string hashedRefreshToken = HashHelper.HashSha256(refreshToken);
+
+            var data = new RefreshToken
             {
-                EmailAddress = userCreateModel.EmailAddress,
-                Password = password,
-                FullName = payload.Name,
-                Role = (Domain.Entities.Role)userCreateModel.Role,
-                Salting = salting
+                UserId = userId,
+                Token = hashedRefreshToken,
+                Expiration = DateTime.UtcNow.AddDays(7), // Token có hiệu lực trong 7 ngày
+                IsRevoked = false // Mặc định là chưa bị thu hồi
             };
-            _dbContext.Users.Add(newUser);
+            _dbContext.RefreshTokens.Add(data);
             _dbContext.SaveChanges();
-            return new OkObjectResult("User created successfully");
+            
+            return hashedRefreshToken; // tra về token đã được băm vì sao vậy
+        }
+
+        //bug
+        public void DeleteOldRefreshTokens(int userId)
+        {
+            var refreshTokens = _dbContext.RefreshTokens
+                .Where(rt => rt.UserId == userId && !rt.IsRevoked)
+                .ToList();
+            if (refreshTokens.Count == 0)
+            {
+                return; // Không có token nào để xóa
+            }
+            // Xoas het refresh token của người dùng
+            _dbContext.RefreshTokens.RemoveRange(refreshTokens);
+            _dbContext.SaveChanges();
+
+        }
+
+        public User GetUserByRefreshToken(string refreshToken)
+        {
+            var user = _dbContext.RefreshTokens
+                .Where(rt => rt.Token == HashHelper.HashSha256(refreshToken) && !rt.IsRevoked && rt.Expiration > DateTime.Now)
+                .Select(rt => rt.User)
+                .FirstOrDefault();
+
+
+            return user ?? throw new Exception("Refresh token is invalid or has been revoked.");
         }
     }
 }

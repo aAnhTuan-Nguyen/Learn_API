@@ -10,6 +10,7 @@ namespace TodoWeb.Domain.Entities
         public string Salting { get; set; }
         public string FullName { get; set; }
         public Role Role { get; set; }
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     }
     public enum  Role
     {

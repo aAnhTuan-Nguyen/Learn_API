@@ -23,6 +23,7 @@ namespace TodoWeb.Infrastructures
         public DbSet<StudentExamAnswer> StudentExamAnswer { get; set; }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
 
@@ -138,6 +139,7 @@ namespace TodoWeb.Infrastructures
 
             // cấu hình riêng cho các entity
             modelBuilder.ApplyConfiguration(new UserMapping());
+            modelBuilder.Entity<RefreshToken>().ToTable("RefreshTokens");
 
 
             base.OnModelCreating(modelBuilder);
