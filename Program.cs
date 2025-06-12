@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OfficeOpenXml;
 using Serilog;
 using System.Data;
 using TodoWeb.Application.ActionFillter;
@@ -71,9 +72,12 @@ builder.Services.AddSession(options =>
     // nếu mà ko có cái này thì client có thể truy cập cookie
     options.Cookie.IsEssential = true; // tự động lưu cookie trên browser của client
 });
+// config file 
+var fileInformation = builder.Configuration.GetSection("FileInformation");
+builder.Services.Configure<FileInformation>(fileInformation);
+
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-
 builder.Services.Configure<JwtSettings>(jwtSettings);
 
 builder.Services
@@ -129,7 +133,12 @@ Log.Logger =  new LoggerConfiguration()
     .WriteTo.File("D:\\CSharp\\log.txt", 
         rollingInterval: RollingInterval.Day)
     .CreateLogger();
+
+
 builder.Host.UseSerilog();
+
+// Theem ExcelPackage
+ExcelPackage.License.SetNonCommercialPersonal("Ng-Tuan");
 
 // add automaper
 builder.Services.AddAutoMapper(typeof(TodoProfile));

@@ -980,3 +980,45 @@ INSERT INTO [AuditLog] ([Action], [CreatedAt], [EntityName], [NewValue], [OldVal
 OUTPUT INSERTED.[Id]
 VALUES (@p0, @p1, @p2, @p3, @p4);
 
+SELECT [s].[Id], [s].[Name], [s].[Address]
+FROM [School] AS [s]
+SELECT [s].[Id], [s].[Name], [s].[Address]
+FROM [School] AS [s]
+SELECT [s].[Id], [s].[Name], [s].[Address]
+FROM [School] AS [s]
+SELECT TOP(1) [s].[Id], [s].[Address], [s].[Name]
+FROM [School] AS [s]
+WHERE [s].[Id] = @__p_0
+SELECT TOP(1) [s].[Id], [s].[Address], [s].[Name]
+FROM [School] AS [s]
+WHERE [s].[Id] = @__p_0
+SELECT TOP(1) [s].[Id], [s].[Address], [s].[Name]
+FROM [School] AS [s]
+WHERE [s].[Id] = @__p_0
+SELECT TOP(1) [s].[Id], [s].[Address], [s].[Name]
+FROM [School] AS [s]
+WHERE [s].[Id] = @__p_0
+SELECT TOP(1) [s].[Id], [s].[Address], [s].[Name]
+FROM [School] AS [s]
+WHERE [s].[Id] = @__p_0
+SELECT TOP(1) [s].[Id], [s].[Address], [s].[Name]
+FROM [School] AS [s]
+WHERE [s].[Id] = @__p_0
+SELECT TOP(1) [s].[Id], [s].[Address], [s].[Name]
+FROM [School] AS [s]
+WHERE [s].[Id] = @__p_0
+SELECT TOP(1) [s].[Id], [s].[Address], [s].[Name]
+FROM [School] AS [s]
+WHERE [s].[Id] = @__p_0
+SELECT TOP(1) [s].[Id], [s].[Address], [s].[Name]
+FROM [School] AS [s]
+WHERE [s].[Id] = @__p_0
+SELECT TOP(1) [s].[Id], [s].[Address], [s].[Name]
+FROM [School] AS [s]
+WHERE [s].[Id] = @__p_0
+SELECT TOP(1) [s].[Id], [s].[Address], [s].[Name]
+FROM [School] AS [s]
+WHERE [s].[Id] = @__p_0
+SELECT TOP(1) [s].[Id], [s].[Address], [s].[Name]
+FROM [School] AS [s]
+WHERE [s].[Id] = @__p_0

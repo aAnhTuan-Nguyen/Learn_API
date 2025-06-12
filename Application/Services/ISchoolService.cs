@@ -1,4 +1,5 @@
-﻿using TodoWeb.Application.Dtos;
+﻿using OfficeOpenXml;
+using TodoWeb.Application.Dtos;
 using TodoWeb.Application.Dtos.SchoolDTO;
 using TodoWeb.Application.Dtos.StudentDTO;
 using TodoWeb.Domain.Entities;
@@ -13,9 +14,10 @@ namespace TodoWeb.Application.Services
         public int Post(SchoolCreateModel school);
         public bool Put(int id, SchoolUpdateModel school);
         public bool Delete(int id);
+        public Task<string> ImportExcelAsync(IFormFile file);
     }
 
-    public class SchoolService : ISchoolService
+        public class SchoolService : ISchoolService
     {
         private readonly IApplicationDbContext _dbContext;
 
@@ -110,5 +112,65 @@ namespace TodoWeb.Application.Services
                 }).ToList(),
             };
         }
+
+        public Task<string> ImportExcelAsync(IFormFile file)
+        {
+            using var excelFile = new ExcelPackage(file.OpenReadStream());
+            var workSheet = excelFile.Workbook.Worksheets.FirstOrDefault();
+
+            if (workSheet == null)
+            {
+                throw new Exception("No worksheet found in the uploaded file.");
+            }
+
+            if (workSheet.Dimension == null || workSheet.Dimension.Rows < 2)
+            {
+                throw new Exception("The uploaded file is empty or does not contain any data.");
+            }
+
+            // Validate headers
+            var headers = new[] { "Id", "Name", "Address" };
+            for (int col = 1; col <= headers.Length; col++)
+            {
+                var headerCell = workSheet.Cells[1, col];
+                if (headerCell.Text != headers[col - 1])
+                {
+                    throw new Exception($"Invalid header '{headerCell.Text}' at column {col}. Expected '{headers[col - 1]}'.");
+                }
+            }
+
+            // Process rows
+            for (int row = 2; row <= workSheet.Dimension.Rows; row++)
+            {
+                var schoolIdCell = workSheet.Cells[row, 1];
+                var nameCell = workSheet.Cells[row, 2];
+                var addressCell = workSheet.Cells[row, 3];
+
+                if (string.IsNullOrWhiteSpace(schoolIdCell.Text))
+                {
+                    var newSchool = new SchoolCreateModel
+                    {
+                        Name = nameCell.Text,
+                        Address = addressCell.Text
+                    };
+                    Post(newSchool);
+                }
+                else if (int.TryParse(schoolIdCell.Text, out int schoolId))
+                {
+                    var updateSchool = new SchoolUpdateModel
+                    {
+                        Name = nameCell.Text,
+                        Address = addressCell.Text
+                    };
+                    Put(schoolId, updateSchool);
+                }
+                else
+                {
+                    throw new Exception($"Invalid school ID at row {row}");
+                }
+            }
+            return Task.FromResult(file.FileName + " imported successfully.");
+        }
+
     }
 }

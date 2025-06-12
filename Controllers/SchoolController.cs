@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml;
+using OfficeOpenXml.Table;
 using TodoWeb.Application.ActionFillter;
 using TodoWeb.Application.Dtos.SchoolDTO;
 using TodoWeb.Application.Dtos.UserDTO;
@@ -13,7 +15,7 @@ namespace TodoWeb.Controllers
     //[TypeFilter(typeof(AuthorizationFilter), Arguments = ["Admin,Teacher"])]
     //[TypeFilter(typeof(AuthorizationFilter), Arguments = [$"{nameof(Role.Admin)},{nameof(Role.Teacher)}"])]
 
-    [Authorize(Roles= "Admin,Stud")] // Cái này nó như cái filter
+    //[Authorize(Roles= "Admin,Stud")] // Cái này nó như cái filter
 
     public class SchoolController : ControllerBase
     {
@@ -57,6 +59,36 @@ namespace TodoWeb.Controllers
         public bool Delete(int id)
         {
             return _schoolService.Delete(id);
+        }
+
+        [HttpGet("excel")]
+        public async Task<IActionResult> ExportSchools()
+        {
+            var schools = _schoolService.Get(null);
+            using var stream = new MemoryStream(); // 
+            using var excelFile = new ExcelPackage(stream);
+
+            var worksheet = excelFile.Workbook.Worksheets.Add("Schools");
+            worksheet.Cells[1, 1].LoadFromCollection(schools, true, TableStyles.Light1);
+
+            await excelFile.SaveAsAsync(stream);
+            return File(stream.ToArray(), "application/octet-stream", "Schools.xlsx");
+
+        }
+
+        [HttpPost("excel")]
+        public async Task<IActionResult> ImportExcel(IFormFile file)
+        {
+            try
+            {
+                var result = await _schoolService.ImportExcelAsync(file);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+
+            }
         }
     }
 }
