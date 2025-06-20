@@ -1,0 +1,30 @@
+﻿@using TodoWeb.Application.Dtos.SchoolDTO
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <h1>School Report</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Address</th>
+        </tr>
+        @foreach (var school in Model.Schools)
+        {
+        <tr>
+            <td>@school.Id</td>
+            <td>@school.Name</td>
+            <td>@school.Address</td>
+        </tr>
+        }
+    </table>
+    <h2>Total: @Model.Schools.Count</h2>
+    <p>Author @Model.Author</p>
+    <p>Date created Model @Model.DateCreated</p>
+
+</body>
+</html>

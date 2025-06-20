@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.AspNetCore;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -8,6 +9,7 @@ using OfficeOpenXml;
 using Serilog;
 using System.Data;
 using TodoWeb.Application.ActionFillter;
+using TodoWeb.Application.BackGroundJobs;
 using TodoWeb.Application.MapperProfiles;
 using TodoWeb.Application.Middleware;
 using TodoWeb.Application.Services;
@@ -143,6 +145,10 @@ ExcelPackage.License.SetNonCommercialPersonal("Ng-Tuan");
 // add automaper
 builder.Services.AddAutoMapper(typeof(TodoProfile));
 
+builder.Services.AddHangfire(x => x.UseSqlServerStorage("Server=LAPTOP-8DPSPJCR\\SQLEXPRESS;Database=ToDoApp;Trusted_Connection=True;TrustServerCertificate=True"));
+
+builder.Services.AddHangfireServer();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -198,5 +204,12 @@ app.Use(async (context, next) =>
 });
 
 app.UseMiddleware<LogMiddleware>();
+
+app.UseHangfireDashboard();
+
+RecurringJob.AddOrUpdate<GenerateSchoolReportJob>(
+    "test-job",
+    job => job.ExcuteAsync(),
+    Cron.Minutely); // chạy mỗi phút
 
 app.Run();

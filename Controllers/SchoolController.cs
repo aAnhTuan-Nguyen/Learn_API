@@ -1,12 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Hangfire;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.Options;
 using OfficeOpenXml;
 using OfficeOpenXml.Table;
+using RazorLight;
 using TodoWeb.Application.ActionFillter;
 using TodoWeb.Application.Dtos.SchoolDTO;
 using TodoWeb.Application.Dtos.UserDTO;
 using TodoWeb.Application.Services;
-using TodoWeb.Infrastructures;
+using TodoWeb.Domain.AppsetingsConfigurations;
+
 
 namespace TodoWeb.Controllers
 {
@@ -20,9 +25,11 @@ namespace TodoWeb.Controllers
     public class SchoolController : ControllerBase
     {
         private readonly ISchoolService _schoolService;
-        public SchoolController(ISchoolService schoolService)
+        private readonly FileInformation _fileInformation;
+        public SchoolController(ISchoolService schoolService, IOptions<FileInformation> fileInformationOptions)
         {
             _schoolService = schoolService;
+            _fileInformation = fileInformationOptions.Value;
         }
 
         [HttpGet]
@@ -90,5 +97,66 @@ namespace TodoWeb.Controllers
 
             }
         }
+
+        [HttpGet("pdf")]
+        public async Task<IActionResult> ExportSchoolPdf()
+        {
+            var htmlText= await System.IO.File.ReadAllTextAsync("Template/SchoolReport.html");
+            htmlText.Replace("{{SchoolName}}", "FPT University");
+
+            var renderEngine = new ChromePdfRenderer();
+
+            var pdf = await renderEngine.RenderHtmlAsPdfAsync(htmlText);
+
+            var path = Path.Combine(_fileInformation.RootDirectory, "SchoolReport.pdf");
+            pdf.SaveAs(path);
+
+            return Ok();
+        }
+
+        [HttpGet("pdf-dynamic")]
+        public async Task<IActionResult> ExportSchoolPdfDynamic()
+        {
+            var schools = _schoolService.Get(null);
+
+            var model = new SchoolReportModel
+            {
+                Author = "nat",
+                DateCreated = DateTime.Now.ToString("dd/MM/yyyy"),
+                Schools = schools.ToList()
+            };
+
+
+            var engine = new RazorLightEngineBuilder()
+                .UseFileSystemProject(Path.Combine(Directory.GetCurrentDirectory(), "Template"))
+                .UseMemoryCachingProvider()
+                .Build();
+
+            string htmlText = await engine.CompileRenderAsync("SchoolReportDynamic.cshtml", model);
+            var renderEngine = new ChromePdfRenderer();
+            var pdf = await renderEngine.RenderHtmlAsPdfAsync(htmlText);
+            var path = Path.Combine(_fileInformation.RootDirectory, "SchoolReport.pdf");
+            pdf.SaveAs(path);
+
+            return File(pdf.BinaryData, "application/pdf", "SchoolReport.pdf");
+        }
+
+        [HttpGet("test-hangfire")]
+        public async Task<IActionResult> TestHangFire()
+        {
+            // Hàm Enqueue được sử dụng để thêm một công việc vào hàng đợi Hangfire.
+            string jobId1 = BackgroundJob.Enqueue(() => Console.WriteLine("Hello, Hangfire!"));
+
+            // Hàm Schedule được sử dụng để thêm một công việc vào hàng đợi Hangfire với thời gian trì hoãn.
+            string jobId2 = BackgroundJob.Schedule(() => Console.WriteLine("This is a delayed job!"), TimeSpan.FromSeconds(10));
+
+            // hàm ContinueJobWith được sử dụng để tạo một công việc tiếp theo sẽ chạy sau khi công việc trước đó hoàn thành.
+            string jobId3 = BackgroundJob.ContinueJobWith(jobId2, () => Console.WriteLine("This is a continuos job after run job 2"));
+
+            BackgroundJob.ContinueJobWith(jobId3, () => Console.WriteLine("This is a continuos job after run job 3"));
+
+            return Ok("Hangfire job has been enqueued successfully.");
+        }
+        
     }
 }
