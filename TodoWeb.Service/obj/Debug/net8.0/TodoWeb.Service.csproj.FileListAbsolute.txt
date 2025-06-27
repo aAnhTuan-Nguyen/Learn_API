@@ -1,0 +1,15 @@
+D:\CSharpAH\TodoWeb.Service\obj\Debug\net8.0\TodoWeb.Service.csproj.AssemblyReference.cache
+D:\CSharpAH\TodoWeb.Service\obj\Debug\net8.0\TodoWeb.Service.GeneratedMSBuildEditorConfig.editorconfig
+D:\CSharpAH\TodoWeb.Service\obj\Debug\net8.0\TodoWeb.Service.AssemblyInfoInputs.cache
+D:\CSharpAH\TodoWeb.Service\obj\Debug\net8.0\TodoWeb.Service.AssemblyInfo.cs
+D:\CSharpAH\TodoWeb.Service\obj\Debug\net8.0\TodoWeb.Service.csproj.CoreCompileInputs.cache
+D:\CSharpAH\TodoWeb.Service\bin\Debug\net8.0\TodoWeb.Service.deps.json
+D:\CSharpAH\TodoWeb.Service\bin\Debug\net8.0\TodoWeb.Service.dll
+D:\CSharpAH\TodoWeb.Service\bin\Debug\net8.0\TodoWeb.Service.pdb
+D:\CSharpAH\TodoWeb.Service\bin\Debug\net8.0\TodoWeb.DataAccess.dll
+D:\CSharpAH\TodoWeb.Service\bin\Debug\net8.0\TodoWeb.DataAccess.pdb
+D:\CSharpAH\TodoWeb.Service\obj\Debug\net8.0\TodoWeb..8FA879DD.Up2Date
+D:\CSharpAH\TodoWeb.Service\obj\Debug\net8.0\TodoWeb.Service.dll
+D:\CSharpAH\TodoWeb.Service\obj\Debug\net8.0\refint\TodoWeb.Service.dll
+D:\CSharpAH\TodoWeb.Service\obj\Debug\net8.0\TodoWeb.Service.pdb
+D:\CSharpAH\TodoWeb.Service\obj\Debug\net8.0\ref\TodoWeb.Service.dll

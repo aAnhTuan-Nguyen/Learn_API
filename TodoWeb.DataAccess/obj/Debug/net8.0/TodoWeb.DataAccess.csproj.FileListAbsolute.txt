@@ -1,0 +1,12 @@
+D:\CSharpAH\TodoWeb.DataAccess\obj\Debug\net8.0\TodoWeb.DataAccess.csproj.AssemblyReference.cache
+D:\CSharpAH\TodoWeb.DataAccess\obj\Debug\net8.0\TodoWeb.DataAccess.GeneratedMSBuildEditorConfig.editorconfig
+D:\CSharpAH\TodoWeb.DataAccess\obj\Debug\net8.0\TodoWeb.DataAccess.AssemblyInfoInputs.cache
+D:\CSharpAH\TodoWeb.DataAccess\obj\Debug\net8.0\TodoWeb.DataAccess.AssemblyInfo.cs
+D:\CSharpAH\TodoWeb.DataAccess\obj\Debug\net8.0\TodoWeb.DataAccess.csproj.CoreCompileInputs.cache
+D:\CSharpAH\TodoWeb.DataAccess\bin\Debug\net8.0\TodoWeb.DataAccess.deps.json
+D:\CSharpAH\TodoWeb.DataAccess\bin\Debug\net8.0\TodoWeb.DataAccess.dll
+D:\CSharpAH\TodoWeb.DataAccess\bin\Debug\net8.0\TodoWeb.DataAccess.pdb
+D:\CSharpAH\TodoWeb.DataAccess\obj\Debug\net8.0\TodoWeb.DataAccess.dll
+D:\CSharpAH\TodoWeb.DataAccess\obj\Debug\net8.0\refint\TodoWeb.DataAccess.dll
+D:\CSharpAH\TodoWeb.DataAccess\obj\Debug\net8.0\TodoWeb.DataAccess.pdb
+D:\CSharpAH\TodoWeb.DataAccess\obj\Debug\net8.0\ref\TodoWeb.DataAccess.dll
