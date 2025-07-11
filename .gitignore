@@ -1,32 +1,55 @@
-﻿# Build output
+# 👉 Build output
 bin/
 obj/
 
-# Visual Studio
+# 👉 Visual Studio artifacts
 .vs/
 *.user
 *.suo
+*.csproj.user
 
-# Logs and temp
+# 👉 Logs, temps, caches
 *.log
 *.tmp
 *.cache
 
-# Debug and test
+# 👉 Debug, test files
 TestResults/
 *.pdb
+*.mdb
+*.svclog
 
-# App settings (local only)
+# 👉 App settings (local only)
 appsettings.*.json
 !appsettings.json
 
-# NuGet
+# 👉 NuGet and dependency assets
 packages/
 *.nupkg
 project.assets.json
+project.lock.json
 
-# Docker
+# 👉 Docker configs
 docker-compose.override.yml
+docker-compose.*.yml
 
-# EF Core migrations
+# 👉 Entity Framework Core migrations
 Migrations/
+
+# 👉 IDE-specific folders (optional)
+.idea/
+.vscode/
+
+# 👉 Rider & JetBrains artifacts
+*.sln.iml
+*.DotSettings.user
+
+# 👉 Miscellaneous
+*.db
+*.bak
+*.orig
+*.swp
+
+# 👉 OS generated files
+Thumbs.db
+.DS_Store
