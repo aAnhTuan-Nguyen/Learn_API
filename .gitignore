@@ -1,41 +1,32 @@
-﻿# Thư mục build và output
+﻿# Build output
 bin/
 obj/
 
-# Thư mục tạm của Visual Studio
+# Visual Studio
 .vs/
-
-# File cấu hình người dùng
 *.user
 *.suo
 
-# File log và tạm
+# Logs and temp
 *.log
 *.tmp
 *.cache
 
-# File debug và test
+# Debug and test
 TestResults/
 *.pdb
 
-# Cấu hình môi trường chạy ứng dụng
-appsettings.Development.json
-appsettings.Local.json
-appsettings.Secret.json
+# App settings (local only)
+appsettings.*.json
+!appsettings.json
 
-# Thư mục của NuGet
+# NuGet
 packages/
 *.nupkg
 project.assets.json
 
-# Docker và Kubernetes (nếu dùng)
+# Docker
 docker-compose.override.yml
 
-# Entity Framework
-# Nếu bạn sử dụng Entity Framework, có thể bỏ qua các thư mục migration
-# Bởi vì các migrations có thể được tạo ra từ mã nguồn và không cần thiết phải commit
+# EF Core migrations
 Migrations/
-
-# Các file cấu hình khác
-appsettings.json
-
